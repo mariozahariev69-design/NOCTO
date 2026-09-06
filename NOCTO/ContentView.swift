@@ -4,6 +4,7 @@ import NOCTOCore
 struct ContentView: View {
     @Environment(\.scenePhase) private var scenePhase
     @StateObject private var favorites = FavoritesManager()
+    @StateObject private var locationManager = LocationManager()
     @State private var venues: [Venue] = []
     @State private var loadError: String?
     @State private var isLoading = true
@@ -26,7 +27,7 @@ struct ContentView: View {
                 .padding()
             } else {
                 TabView {
-                    HomeView(venues: venues, favorites: favorites)
+                    HomeView(venues: displayedVenues, favorites: favorites)
                         .tabItem { Label("Начало", systemImage: "house") }
 
                     AllVenuesMapView(venues: venues)
@@ -56,6 +57,7 @@ struct ContentView: View {
             do {
                 venues = try await VenueRepository().loadVenues()
                 lastLoadSucceeded = true
+                locationManager.requestAccess()
             } catch is CancellationError {
                 isLoading = false
                 return
@@ -84,6 +86,14 @@ struct ContentView: View {
             }
         }
         .preferredColorScheme(.dark)
+    }
+
+    private var displayedVenues: [Venue] {
+        guard let location = locationManager.lastKnownLocation else {
+            return venues
+        }
+
+        return ProximityRanker.rank(venues: venues, from: location).map(\.venue)
     }
 
     private var snapshot: OperationalSnapshot {

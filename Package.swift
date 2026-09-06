@@ -41,12 +41,13 @@ let package = Package(
                 "ProfileView.swift",
                 "Venue.swift",
                 "VenueCard.swift",
-                "VenueDetailView.swift",
+                "VenueDetailView.swift"
             ],
             sources: [
                 "OperationalSnapshot.swift",
                 "VenueDataSource.swift",
-                "VenueRepository.swift"
+                "VenueRepository.swift",
+                "ProximityRanker.swift"
             ]
         ),
         .testTarget(name: "NOCTOCoreTests", dependencies: ["NOCTOCore"]),
